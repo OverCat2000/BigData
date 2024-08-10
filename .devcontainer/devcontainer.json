@@ -1,0 +1,17 @@
+{
+    "name": "Universal Development Environment",
+    "image": "mcr.microsoft.com/vscode/devcontainers/universal:latest",
+    "features": {
+        "ghcr.io/devcontainers/features/terraform:1": {}
+    },
+    "extensions": [
+        "ms-python.python",
+        "ms-toolsai.jupyter",
+        "hashicorp.terraform",
+        "ms-azuretools.vscode-docker"
+    ],
+    "settings": {
+        "terminal.integrated.shell.linux": "/bin/bash"
+    },
+    "postCreateCommand": "pip install -r requirements.txt"
+}
