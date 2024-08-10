@@ -17,6 +17,7 @@ from airflow.operators.python import PythonOperator
 from airflow.utils.trigger_rule import TriggerRule
 from airflow.providers.google.cloud.operators.gcs import GCSCreateBucketOperator, GCSDeleteBucketOperator
 
+from Scrapper import main
 
 PROJECT_ID = os.getenv("PROJECT_ID")
 BUCKET = os.getenv("GCP_GCS_BUCKET")
@@ -93,9 +94,17 @@ with DAG(
         dataset_id =dataset_name
     )
 
-    download_dataset_task = BashOperator(
+    # download_dataset_task = BashOperator(
+    #     task_id="download_dataset_task",
+    #     bash_command=f"curl -sSL {dataset_url} > {path_to_local_home}/{dataset_file}"
+    # )
+
+    download_dataset_task = PythonOperator(
         task_id="download_dataset_task",
-        bash_command=f"curl -sSL {dataset_url} > {path_to_local_home}/{dataset_file}"
+        python_callable=main,
+        op_kwargs={
+            "year": 2011
+        }
     )
 
     # drop_task = PythonOperator(

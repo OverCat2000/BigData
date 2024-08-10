@@ -6,11 +6,13 @@ from selenium.webdriver.support.ui import WebDriverWait
 from selenium.webdriver.support import expected_conditions as EC
 from selenium.webdriver.chrome.service import Service
 
+from webdriver_manager.chrome import ChromeDriverManager
+
 import requests
 import time
 import os
 
-def setup_driver(download_directory, driver_path):
+def setup_driver(download_directory):
     """Set up the Selenium WebDriver with the necessary options."""
     chrome_options = Options()
     chrome_options.add_experimental_option("prefs", {
@@ -21,7 +23,7 @@ def setup_driver(download_directory, driver_path):
     })
     chrome_options.add_argument("--headless")
 
-    driver = webdriver.Chrome(options=chrome_options, service=Service(driver_path))
+    driver = webdriver.Chrome(options=chrome_options, service=Service(ChromeDriverManager().install()))
     return driver
 
 def navigate_to_url(driver, url):
@@ -64,18 +66,20 @@ def rename_downloaded_file(original_file_path, new_file_path):
         print(f"File not found: {original_file_path}")
 
 def main(year):
+    path_to_local_home = os.environ.get("AIRFLOW_HOME", "/opt/airflow/")
     url = "https://atlas.ecdc.europa.eu/public/index.aspx?Dataset=27&HealthTopic=31"
-    download_directory = r"C:\Users\malis\code\BigData\data"
+    download_directory = f"{path_to_local_home}/data"
     original_filename = "ECDC_surveillance_data_Leptospirosis.csv"  # Replace with the actual file name
     new_filename = f"{year}.csv"  # The new name you want to give to the file
-    driver_path = "C:/Users/malis/code/BigData/chromedriver-win64/chromedriver.exe"
+    #driver_path = f"{path_to_local_home}/chromedriver-linux64/chromedriver"
+    #print(driver_path)
 
     # Construct full file paths
     original_file_path = os.path.join(download_directory, original_filename)
     new_file_path = os.path.join(download_directory, new_filename)
 
     # Setup WebDriver
-    driver = setup_driver(download_directory, driver_path)
+    driver = setup_driver(download_directory)
 
     try:
         # Navigate and interact with the webpage
