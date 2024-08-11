@@ -1,0 +1,58 @@
+[2024-08-11T03:35:52.098+0000] {local_task_job_runner.py:120} INFO - ::group::Pre task execution logs
+[2024-08-11T03:35:52.146+0000] {taskinstance.py:2076} INFO - Dependencies all met for dep_context=non-requeueable deps ti=<TaskInstance: my_dag.create_bucket scheduled__2024-02-01T00:00:00+00:00 [queued]>
+[2024-08-11T03:35:52.166+0000] {taskinstance.py:2076} INFO - Dependencies all met for dep_context=requeueable deps ti=<TaskInstance: my_dag.create_bucket scheduled__2024-02-01T00:00:00+00:00 [queued]>
+[2024-08-11T03:35:52.166+0000] {taskinstance.py:2306} INFO - Starting attempt 1 of 2
+[2024-08-11T03:35:52.207+0000] {taskinstance.py:2330} INFO - Executing <Task(GCSCreateBucketOperator): create_bucket> on 2024-02-01 00:00:00+00:00
+[2024-08-11T03:35:52.226+0000] {warnings.py:112} WARNING - /home/***/.local/lib/python3.12/site-packages/***/task/task_runner/standard_task_runner.py:62: DeprecationWarning: This process (pid=54) is multi-threaded, use of fork() may lead to deadlocks in the child.
+  pid = os.fork()
+
+[2024-08-11T03:35:52.227+0000] {standard_task_runner.py:90} INFO - Running: ['***', 'tasks', 'run', 'my_dag', 'create_bucket', 'scheduled__2024-02-01T00:00:00+00:00', '--job-id', '11', '--raw', '--subdir', 'DAGS_FOLDER/googleBigQuery.py', '--cfg-path', '/tmp/tmpli7sufzi']
+[2024-08-11T03:35:52.243+0000] {standard_task_runner.py:64} INFO - Started process 63 to run task
+[2024-08-11T03:35:52.243+0000] {standard_task_runner.py:91} INFO - Job 11: Subtask create_bucket
+[2024-08-11T03:35:52.387+0000] {task_command.py:426} INFO - Running <TaskInstance: my_dag.create_bucket scheduled__2024-02-01T00:00:00+00:00 [running]> on host 398299d1f2b6
+[2024-08-11T03:35:52.599+0000] {taskinstance.py:2648} INFO - Exporting env vars: AIRFLOW_CTX_DAG_OWNER='***' AIRFLOW_CTX_DAG_ID='my_dag' AIRFLOW_CTX_TASK_ID='create_bucket' AIRFLOW_CTX_EXECUTION_DATE='2024-02-01T00:00:00+00:00' AIRFLOW_CTX_TRY_NUMBER='1' AIRFLOW_CTX_DAG_RUN_ID='scheduled__2024-02-01T00:00:00+00:00'
+[2024-08-11T03:35:52.603+0000] {taskinstance.py:430} INFO - ::endgroup::
+[2024-08-11T03:35:52.657+0000] {connection.py:274} WARNING - Connection schemes (type: google_cloud_platform) shall not contain '_' according to RFC3986.
+[2024-08-11T03:35:52.658+0000] {base.py:84} INFO - Using connection ID 'google_cloud_default' for task execution.
+[2024-08-11T03:35:52.658+0000] {taskinstance.py:441} INFO - ::group::Post task execution logs
+[2024-08-11T03:35:52.659+0000] {taskinstance.py:2905} ERROR - Task failed with exception
+Traceback (most recent call last):
+  File "/home/airflow/.local/lib/python3.12/site-packages/airflow/models/taskinstance.py", line 465, in _execute_task
+    result = _execute_callable(context=context, **execute_callable_kwargs)
+             ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/airflow/.local/lib/python3.12/site-packages/airflow/models/taskinstance.py", line 432, in _execute_callable
+    return execute_callable(context=context, **execute_callable_kwargs)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/airflow/.local/lib/python3.12/site-packages/airflow/models/baseoperator.py", line 401, in wrapper
+    return func(self, *args, **kwargs)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/airflow/.local/lib/python3.12/site-packages/airflow/providers/google/cloud/operators/gcs.py", line 149, in execute
+    project_id=self.project_id or hook.project_id,
+                                  ^^^^^^^^^^^^^^^
+  File "/home/airflow/.local/lib/python3.12/site-packages/airflow/providers/google/common/hooks/base_google.py", line 427, in project_id
+    _, project_id = self.get_credentials_and_project_id()
+                    ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/airflow/.local/lib/python3.12/site-packages/airflow/providers/google/common/hooks/base_google.py", line 334, in get_credentials_and_project_id
+    credentials, project_id = get_credentials_and_project_id(
+                              ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/airflow/.local/lib/python3.12/site-packages/airflow/providers/google/cloud/utils/credentials_provider.py", line 411, in get_credentials_and_project_id
+    return _CredentialProvider(*args, **kwargs).get_credentials_and_project()
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/airflow/.local/lib/python3.12/site-packages/airflow/providers/google/cloud/utils/credentials_provider.py", line 257, in get_credentials_and_project
+    credentials, project_id = self._get_credentials_using_key_path()
+                              ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/airflow/.local/lib/python3.12/site-packages/airflow/providers/google/cloud/utils/credentials_provider.py", line 315, in _get_credentials_using_key_path
+    credentials = google.oauth2.service_account.Credentials.from_service_account_file(
+                  ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/airflow/.local/lib/python3.12/site-packages/google/oauth2/service_account.py", line 259, in from_service_account_file
+    info, signer = _service_account_info.from_filename(
+                   ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/airflow/.local/lib/python3.12/site-packages/google/auth/_service_account_info.py", line 78, in from_filename
+    with io.open(filename, "r", encoding="utf-8") as json_file:
+         ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+FileNotFoundError: [Errno 2] No such file or directory: './key.json'
+[2024-08-11T03:35:52.680+0000] {taskinstance.py:1206} INFO - Marking task as UP_FOR_RETRY. dag_id=my_dag, task_id=create_bucket, run_id=scheduled__2024-02-01T00:00:00+00:00, execution_date=20240201T000000, start_date=20240811T033552, end_date=20240811T033552
+[2024-08-11T03:35:52.706+0000] {standard_task_runner.py:110} ERROR - Failed to execute job 11 for task create_bucket ([Errno 2] No such file or directory: './key.json'; 63)
+[2024-08-11T03:35:52.789+0000] {local_task_job_runner.py:243} INFO - Task exited with return code 1
+[2024-08-11T03:35:52.872+0000] {taskinstance.py:3503} INFO - 0 downstream tasks scheduled from follow-on schedule check
+[2024-08-11T03:35:52.894+0000] {local_task_job_runner.py:222} INFO - ::endgroup::

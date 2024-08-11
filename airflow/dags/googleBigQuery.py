@@ -74,15 +74,15 @@ with DAG(
     execution_date_3_months_ago = "{{ (execution_date - macros.timedelta(days=90)).strftime('%Y-%m') }}"
     
     # Use the calculated execution date in the dataset file name
-    dataset_file = f"yellow_tripdata_{execution_date_3_months_ago}.parquet"
-    dataset_url = f'https://d37ci6vzurychx.cloudfront.net/trip-data/{dataset_file}'
-    object_name = f"bigquery/{dataset_file}"
+    #dataset_file = f"yellow_tripdata_{execution_date_3_months_ago}.parquet"
+    dataset_file = f"2015.csv"
+    #dataset_url = f'https://d37ci6vzurychx.cloudfront.net/trip-data/{dataset_file}'
     # Local Path
     path_to_local_home = os.environ.get("AIRFLOW_HOME", "/opt/airflow/")
     # Bigquery dataset
     dataset_name = f"dataset_{DAG_ID}"
     # Bucket destination
-    object_name = f"bigquery/{dataset_file}"
+    object_name = f"lepto/{dataset_file}"
 
     create_bucket = GCSCreateBucketOperator(
         task_id="create_bucket",
@@ -94,18 +94,14 @@ with DAG(
         dataset_id =dataset_name
     )
 
-    # download_dataset_task = BashOperator(
-    #     task_id="download_dataset_task",
-    #     bash_command=f"curl -sSL {dataset_url} > {path_to_local_home}/{dataset_file}"
-    # )
-
-    download_dataset_task = PythonOperator(
+    download_dataset_task = BashOperator(
         task_id="download_dataset_task",
-        python_callable=main,
-        op_kwargs={
-            "year": 2011
-        }
+        #curl -X POST -H "Content-Type: application/json" -d '{"year": 2015}' http://localhost:5000/download-data --output 2015.csv
+
+        bash_command=f"""curl -X POST -H "Content-Type: application/json" -d '{{"year": {2015}}}' http://localhost:5000/download-data --output {dataset_file}"""
+    
     )
+
 
     # drop_task = PythonOperator(
     #     task_id="drop_columns",
