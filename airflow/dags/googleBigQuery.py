@@ -62,8 +62,9 @@ default_args = {
 
 with DAG(
     DAG_ID,
-    schedule="@monthly",
-    start_date=datetime(2024, 1, 1),
+    schedule_interval='@yearly',  # Runs once a year
+    start_date=datetime(2007, 1, 1),  # Start date
+    end_date=datetime(2022, 12, 31),  # End date
     catchup=True,
     tags=["mydag"],
     default_args=default_args,
@@ -71,11 +72,11 @@ with DAG(
 ) as dag:
 
     # Calculate the date 3 months behind the execution date
-    execution_date_3_months_ago = "{{ (execution_date - macros.timedelta(days=90)).strftime('%Y-%m') }}"
-    
+    #execution_date_3_months_ago = "{{ (execution_date - macros.timedelta(days=90)).strftime('%Y-%m') }}"
+    year = "{{execution_date.year}}"
     # Use the calculated execution date in the dataset file name
     #dataset_file = f"yellow_tripdata_{execution_date_3_months_ago}.parquet"
-    dataset_file = f"2015.csv"
+    dataset_file = f"{year}.csv"
     #dataset_url = f'https://d37ci6vzurychx.cloudfront.net/trip-data/{dataset_file}'
     # Local Path
     path_to_local_home = os.environ.get("AIRFLOW_HOME", "/opt/airflow/")
@@ -98,9 +99,14 @@ with DAG(
         task_id="download_dataset_task",
         #curl -X POST -H "Content-Type: application/json" -d '{"year": 2015}' http://localhost:5000/download-data --output 2015.csv
 
-        bash_command=f"""curl -X POST -H "Content-Type: application/json" -d '{{"year": {2015}}}' http://localhost:5000/download-data --output {dataset_file}"""
+        bash_command=f"""curl -X POST -H "Content-Type: application/json" -d '{{"year": {year}}}' http://flask-app:5000/download-data --output {path_to_local_home}/{dataset_file}"""
     
     )
+
+    # download_dataset_task = BashOperator(
+    #     task_id="download_dataset_task",
+    #     bash_command=f"curl -sSL {dataset_url} > {path_to_local_home}/{dataset_file}"
+    # )
 
 
     # drop_task = PythonOperator(
