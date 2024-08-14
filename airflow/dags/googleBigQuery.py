@@ -48,9 +48,9 @@ DAG_ID = "my_dag"
 #     df.to_parquet(dataset_file, index=False)
     
 
-def drop():
-    data = pd.read_parquet(dataset_file)
-    data.to_csv(dataset_csv, index=False, header=False)
+def drop(dataset_file):
+    data = pd.read_csv(dataset_file)
+    data.to_csv(dataset_file, index=False, header=False)
 
 
 default_args = {
@@ -109,10 +109,13 @@ with DAG(
     # )
 
 
-    # drop_task = PythonOperator(
-    #     task_id="drop_columns",
-    #     python_callable=drop
-    # )
+    drop_task = PythonOperator(
+        task_id="drop_columns",
+        python_callable=drop,
+        op_kwargs={
+            'dataset_file': "{{ execution_date.year }}.csv"
+        }
+    )
 
     local_to_gcs_taks = LocalFilesystemToGCSOperator(
         task_id="local_to_gcs_taks",
@@ -124,35 +127,26 @@ with DAG(
 
     create_external_table = BigQueryCreateExternalTableOperator(
         task_id="create_external_table",
-        destination_project_dataset_table=f"{dataset_name}.external_name5",
+        destination_project_dataset_table=f"{dataset_name}.lepto_external_table",
         bucket=BUCKET,
-        source_objects=["bigquery/yellow_tripdata_*.parquet"],
+        source_objects=["lepto/*.csv"],
         gcp_conn_id='google_cloud_default',
         schema_fields=[
-            {"name": "VendorID", "type":"INTEGER", "mode":"REQUIRED"},
-            {"name": "tpep_pickup_datetime", "type":"TIMESTAMP", "mode":"NULLABLE"},
-            {"name": "tpep_dropoff_datetime", "type":"TIMESTAMP", "mode":"NULLABLE"},
-            {"name": "passenger_count", "type":"FLOAT", "mode":"NULLABLE"},
-            {"name": "trip_distance", "type":"FLOAT", "mode":"NULLABLE"},
-            {"name": "RatecodeID", "type":"FLOAT", "mode":"NULLABLE"},
-            {"name": "store_and_fwd_flag", "type":"STRING", "mode":"NULLABLE"},
-            {"name": "PUlocationID", "type":"INTEGER", "mode":"NULLABLE"},
-            {"name": "DOlocationID", "type":"INTEGER", "mode":"NULLABLE"},
-            {"name": "payment_type", "type":"INTEGER", "mode":"NULLABLE"},
-            {"name": "fare_amount", "type":"FLOAT", "mode":"NULLABLE"},
-            {"name": "extra", "type":"FLOAT", "mode":"NULLABLE"},
-            {"name": "mta_tax", "type":"FLOAT", "mode":"NULLABLE"},
-            {"name": "tip_amount", "type":"FLOAT", "mode":"NULLABLE"},
-            {"name": "tolls_amount", "type":"FLOAT", "mode":"NULLABLE"},
-            {"name": "improvement_surcharge", "type":"FLOAT", "mode":"NULLABLE"},
-            {"name": "total_amount", "type":"FLOAT", "mode":"NULLABLE"},
-            {"name": "congestion_surcharge", "type":"FLOAT", "mode":"NULLABLE"},
+            {"name": "HealthTopic", "type": "STRING", "mode": "NULLABLE"},
+            {"name": "Population", "type": "STRING", "mode": "NULLABLE"},
+            {"name": "Indicator", "type": "STRING", "mode": "NULLABLE"},
+            {"name": "Unit", "type": "STRING", "mode": "NULLABLE"},
+            {"name": "Time", "type": "INTEGER", "mode": "NULLABLE"},
+            {"name": "RegionCode", "type": "STRING", "mode": "NULLABLE"},
+            {"name": "RegionName", "type": "STRING", "mode": "NULLABLE"},
+            {"name": "NumValue", "type": "FLOAT", "mode": "NULLABLE"},
+            {"name": "TxtValue", "type": "FLOAT", "mode": "NULLABLE"}
         ],
-        source_format="PARQUET"
+        source_format="CSV"
     )
 
 
-    create_bucket >> create_dataset >> download_dataset_task >> local_to_gcs_taks >> create_external_table
+    create_bucket >> create_dataset >> download_dataset_task >> drop_task >> local_to_gcs_taks >> create_external_table
 
     # transform = PythonOperator(
     #     task_id="fix_columns",

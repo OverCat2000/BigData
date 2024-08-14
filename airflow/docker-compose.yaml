@@ -121,18 +121,6 @@ services:
     build:
       context: ./source_api
       dockerfile: ./Dockerfile
-    healthcheck:
-      test:
-        [
-          "CMD",
-          "curl",
-          "--fail",
-          "http://flask-app:5000/health"
-        ]
-      interval: 30s
-      timeout: 10s
-      retries: 5
-      start_period: 30s
     restart: always
 
   airflow-webserver:
