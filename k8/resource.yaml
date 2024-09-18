@@ -1,0 +1,33 @@
+apiVersion: v1
+kind: Service
+metadata:
+  name: shiny-app-service
+spec:
+  type: LoadBalancer
+  selector:
+    app: shiny-app
+  ports:
+    - port: 80
+      targetPort: 8180
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: shiny-app
+  labels:
+    app: shiny-app
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: shiny-app
+  template:
+    metadata:
+      labels:
+        app: shiny-app
+    spec:
+      containers:
+        - name: shiny-app
+          image: asia-south1-docker.pkg.dev/GCP_PROJECT_ID/my-shiny-app-repo/my-shiny-app:latest
+          ports:
+            - containerPort: 8180
